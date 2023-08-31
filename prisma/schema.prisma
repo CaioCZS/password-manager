@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  createdAt   DateTime      @default(now())
+  Credential  Credential[]
+  SecureNotes SecureNotes[]
+  CreditCard  CreditCard[]
+
+  @@map("users")
+}
+
+model Credential {
+  id        Int      @id @default(autoincrement())
+  title     String
+  url       String
+  username  String
+  password  String
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@unique([userId, title])
+  @@map("credentials")
+}
+
+model SecureNotes {
+  id        Int      @id @default(autoincrement())
+  title     String
+  note      String
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@unique([userId, title])
+  @@map("secure_notes")
+}
+
+model CreditCard {
+  id             Int      @id @default(autoincrement())
+  title          String
+  creditNumber   String
+  name           String
+  securityCode   String
+  expirationDate DateTime
+  password       String
+  isVirtual      Boolean
+  type           CardType
+  User           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+
+  @@unique([userId, title])
+  @@map("credit_cards")
+}
+
+enum CardType {
+  CREDITO
+  DEBITO
+  CREDITO_DEBITO
+}
