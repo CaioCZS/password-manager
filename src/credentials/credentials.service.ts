@@ -4,10 +4,10 @@ import { CredentialsRepository } from './credentials.repository';
 import {
   CredentialIsNotFromUser,
   CredentialNotFound,
-  TitleAlreadyInUse,
 } from './errors/credential.errors';
 import { Credential } from '@prisma/client';
 import Cryptr from 'cryptr';
+import { TitleAlreadyInUse } from '../errors/errors';
 
 @Injectable()
 export class CredentialsService {
@@ -25,7 +25,9 @@ export class CredentialsService {
   }
 
   async findAll(userId: number) {
-    return await this.credentialsRepository.findAll(userId);
+    const credentials = await this.credentialsRepository.findAll(userId);
+
+    return this.decryptAllPasswords(credentials);
   }
 
   async findOne(id: number, userId: number) {
@@ -50,11 +52,17 @@ export class CredentialsService {
     if (credential) throw new TitleAlreadyInUse();
   }
 
-  verifyCredentialIsFromUser(credential: Credential, userId: number) {
+  private verifyCredentialIsFromUser(credential: Credential, userId: number) {
     if (credential.userId !== userId) throw new CredentialIsNotFromUser();
   }
 
-  decryptPassword(password: string) {
+  private decryptAllPasswords(credentials: Credential[]) {
+    return credentials.map((c) => {
+      return { ...c, password: this.decryptPassword(c.password) };
+    });
+  }
+
+  private decryptPassword(password: string) {
     return this.cryptr.decrypt(password);
   }
 }

@@ -7,30 +7,29 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { CredentialsService } from './credentials.service';
-import { CreateCredentialDto } from './dto/create-credential.dto';
+import { SecureNotesService } from './secure-notes.service';
+import { CreateSecureNoteDto } from './dto/create-secure-note.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../decorators/user.decorator';
 import { User as UserPrisma } from '@prisma/client';
 import { ParseIdPipe } from '../pipes/id.pipe';
-
 @UseGuards(AuthGuard)
-@Controller('credentials')
-export class CredentialsController {
-  constructor(private readonly credentialsService: CredentialsService) {}
+@Controller('secure-notes')
+export class SecureNotesController {
+  constructor(private readonly secureNotesService: SecureNotesService) {}
 
   @Post()
   async create(
-    @Body() createCredentialDto: CreateCredentialDto,
+    @Body() createSecureNoteDto: CreateSecureNoteDto,
     @User() user: UserPrisma,
   ) {
-    await this.credentialsService.create(createCredentialDto, user.id);
-    return { message: 'Credential created' };
+    await this.secureNotesService.create(createSecureNoteDto, user.id);
+    return { message: 'Secure note created' };
   }
 
   @Get()
   async findAll(@User() user: UserPrisma) {
-    return await this.credentialsService.findAll(user.id);
+    return await this.secureNotesService.findAll(user.id);
   }
 
   @Get(':id')
@@ -38,7 +37,7 @@ export class CredentialsController {
     @Param('id', new ParseIdPipe()) id: number,
     @User() user: UserPrisma,
   ) {
-    return await this.credentialsService.findOne(id, user.id);
+    return await this.secureNotesService.findOne(id, user.id);
   }
 
   @Delete(':id')
@@ -46,7 +45,7 @@ export class CredentialsController {
     @Param('id', new ParseIdPipe()) id: number,
     @User() user: UserPrisma,
   ) {
-    await this.credentialsService.remove(id, user.id);
-    return { message: 'Credential deleted' };
+    await this.secureNotesService.remove(id, user.id);
+    return { message: 'Secure note deleted' };
   }
 }

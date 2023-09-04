@@ -7,10 +7,8 @@ import {
 
 export class ParseIdPipe implements PipeTransform<string, number> {
   transform(value: string, metadata: ArgumentMetadata): number {
-    if (!value) throw new BadRequestException('Invalid id');
-
     const numberId = parseInt(value);
-    if (isNaN(numberId)) {
+    if (isNaN(numberId) || numberId <= 0) {
       throw new BadRequestException('Invalid id');
     }
     return numberId;
