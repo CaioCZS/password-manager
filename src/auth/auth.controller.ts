@@ -10,7 +10,7 @@ export class AuthController {
   @Post('/sign-up')
   async signUp(@Body() body: SignUpDto) {
     await this.authService.signUp(body);
-    return 'User created';
+    return { message: 'User created' };
   }
 
   @Post('sign-in')

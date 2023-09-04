@@ -1,26 +1,60 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCredentialDto } from './dto/create-credential.dto';
-import { UpdateCredentialDto } from './dto/update-credential.dto';
+import { CredentialsRepository } from './credentials.repository';
+import {
+  CredentialIsNotFromUser,
+  CredentialNotFound,
+  TitleAlreadyInUse,
+} from './errors/credential.errors';
+import { Credential } from '@prisma/client';
+import Cryptr from 'cryptr';
 
 @Injectable()
 export class CredentialsService {
-  create(createCredentialDto: CreateCredentialDto) {
-    return 'This action adds a new credential';
+  private cryptr: Cryptr;
+  constructor(private readonly credentialsRepository: CredentialsRepository) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const Cryptr = require('cryptr');
+    this.cryptr = new Cryptr(process.env.CRYPTR_SECRET);
   }
 
-  findAll() {
-    return `This action returns all credentials`;
+  async create(createCredentialDto: CreateCredentialDto, userId: number) {
+    await this.verifyTitleAlreadyInUse(createCredentialDto.title, userId);
+
+    return await this.credentialsRepository.create(createCredentialDto, userId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} credential`;
+  async findAll(userId: number) {
+    return await this.credentialsRepository.findAll(userId);
   }
 
-  update(id: number, updateCredentialDto: UpdateCredentialDto) {
-    return `This action updates a #${id} credential`;
+  async findOne(id: number, userId: number) {
+    const credential = await this.credentialsRepository.findOne(id);
+    if (!credential) throw new CredentialNotFound();
+    this.verifyCredentialIsFromUser(credential, userId);
+    const { password } = credential;
+
+    return { ...credential, password: this.decryptPassword(password) };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} credential`;
+  async remove(id: number, userId: number) {
+    await this.findOne(id, userId);
+    return this.credentialsRepository.remove(id);
+  }
+
+  async verifyTitleAlreadyInUse(title: string, userId: number) {
+    const credential = await this.credentialsRepository.findByTitle(
+      title,
+      userId,
+    );
+    if (credential) throw new TitleAlreadyInUse();
+  }
+
+  verifyCredentialIsFromUser(credential: Credential, userId: number) {
+    if (credential.userId !== userId) throw new CredentialIsNotFromUser();
+  }
+
+  decryptPassword(password: string) {
+    return this.cryptr.decrypt(password);
   }
 }

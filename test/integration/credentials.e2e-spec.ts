@@ -131,6 +131,18 @@ describe('Credentials E2E Tests', () => {
         .withEmail()
         .withStrongPassword()
         .persist();
+      await new CredentialFactory(prisma)
+        .withPassword()
+        .withTitle()
+        .withUrl()
+        .withUsername()
+        .persist(user.id);
+      await new CredentialFactory(prisma)
+        .withPassword()
+        .withTitle()
+        .withUrl()
+        .withUsername()
+        .persist(user.id);
       const token = generateValidToken(user);
       const { statusCode, body } = await server
         .get(baseRoute)
