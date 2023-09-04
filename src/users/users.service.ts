@@ -17,6 +17,11 @@ export class UsersService {
     return user;
   }
 
+  async getUserById(id: number) {
+    const user = await this.usersRepository.findById(id);
+    return user;
+  }
+
   private async verifyExistingUser(email: string) {
     const user = await this.getUserByEmail(email);
     if (user) throw new EmailAlreadyInUse();

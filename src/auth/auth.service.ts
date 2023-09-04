@@ -34,7 +34,7 @@ export class AuthService {
     return this.createToken(user);
   }
 
-  private async createToken(user: User) {
+  async createToken(user: User) {
     const { id, email } = user;
 
     const token = this.jwtService.sign(
@@ -48,5 +48,14 @@ export class AuthService {
     );
 
     return { token };
+  }
+
+  checkToken(token: string) {
+    const data = this.jwtService.verify(token, {
+      audience: this.AUDIENCE,
+      issuer: this.ISSUER,
+    });
+    console.log(data);
+    return data;
   }
 }
