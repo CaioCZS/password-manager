@@ -55,7 +55,7 @@ export class AuthService {
       audience: this.AUDIENCE,
       issuer: this.ISSUER,
     });
-    console.log(data);
+
     return data;
   }
 }

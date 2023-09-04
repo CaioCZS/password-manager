@@ -10,7 +10,6 @@ describe('Auth E2E Tests', () => {
   let app: INestApplication;
   let server: request.SuperTest<request.Test>;
   const prisma: PrismaService = new PrismaService();
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
