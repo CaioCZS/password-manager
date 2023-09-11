@@ -31,7 +31,7 @@ Caso queria explorar mais a API segue o link do deploy no render: <a href="https
 O prisma foi utilizado para a criação do banco de dados e também para monitorar as migrações e as alterações realizadas. O Jest foi utilizado juntamente com a biblioteca <a href="https://fakerjs.dev/api/"> faker </a> para realização de testes de integração.
 
 ## Como rodar
-1. Clone o repositório em https://github.com/CaioCZS/password-panager-backend
+1. Clone este repositório 
 2. Instale as dependências
    ```
    npm i
